@@ -1,12 +1,34 @@
 import React from 'react';
 import { useTheme } from '../../context/theme-context';
 
-const Header: React.FC = () => {
+interface HeaderProps {
+    activeTab: 'map' | 'table';
+    setActiveTab: React.Dispatch<React.SetStateAction<'map' | 'table'>>;
+}
+const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
     const { theme, toggleTheme } = useTheme();
-    console.log(theme)
     return (
         <header className="p-4 bg-gray-200 dark:bg-gray-900 flex justify-between items-center w-full">
-            <h1 className="text-lg dark:text-white font-bold">Tabs here</h1>
+            <div className="flex items-center space-x-4">
+                <button
+                    onClick={() => setActiveTab('map')}
+                    className={`py-2 px-4 font-bold ${activeTab === 'map'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                        } rounded`}
+                >
+                    Map View
+                </button>
+                <button
+                    onClick={() => setActiveTab('table')}
+                    className={`py-2 px-4 font-bold ${activeTab === 'table'
+                            ? 'bg-blue-500 text-white'
+                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
+                        } rounded`}
+                >
+                    Table View
+                </button>
+            </div>
             <button onClick={toggleTheme} className="focus:outline-none w-8 h-8">
                 {theme === 'dark' ? (
                     <svg
