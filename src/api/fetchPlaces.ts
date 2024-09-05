@@ -1,4 +1,6 @@
-const BASE_URL = `${process.env.BASE_URL}/places`
+import { PlacesResponse } from "../utils/Types";
+
+const BASE_URL = `${process.env.REACT_APP_BASE_URL}/places`;
 
 export const fetchPlaces = async (params: {
     sortBy?: string;
@@ -7,7 +9,7 @@ export const fetchPlaces = async (params: {
     filterCategory?: string;
     page?: number;
     limit?: number;
-} = {}) => {
+} = {}): Promise<PlacesResponse> => {
     const queryParams = new URLSearchParams();
 
     const paramMappings: Record<string, string | number | undefined> = {
@@ -31,8 +33,9 @@ export const fetchPlaces = async (params: {
         throw new Error('Error fetching places');
     }
 
-    return response.json();
+    return response.json() as Promise<PlacesResponse>;
 };
+
 export const fetchPlaceById = async (id: string) => {
     const response = await fetch(`${BASE_URL}/${id}`);
     if (!response.ok) {
