@@ -22,7 +22,7 @@ const App: React.FC = () => {
       search,
       filterCategory,
       page,
-      limit: 10
+      limit: activeTab === 'table' ? 10 : 100, 
     }),
   });
 
@@ -35,11 +35,11 @@ const App: React.FC = () => {
     setSortDirection((prevDirection) => prevDirection === 'asc' ? 'desc' : 'asc');
   };
 
-  const handleSearchChange = (search: string) => {
+  const handleSearch = (search: string) => {
     setSearch(search);
   };
 
-  const handleFilterChange = (filterValue: string) => {
+  const handleCategoryFilter = (filterValue: string) => {
     setFilterCategory(filterValue);
   };
 
@@ -53,9 +53,6 @@ const App: React.FC = () => {
     }
   };
 
-  if (isLoading) return <div>Loading...</div>;
-  if (isError) return <div>Error fetching data</div>;
-
   return (
     <div>
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -63,8 +60,8 @@ const App: React.FC = () => {
         {activeTab === 'map' ? (
           <MapView
             data={data?.data ?? []}
-            onSearchChange={handleSearchChange}
-            onFilterChange={handleFilterChange}
+            onSearch={handleSearch}
+            onCategoryFilter={handleCategoryFilter}
           />
         ) : (
           <TableView
@@ -73,8 +70,8 @@ const App: React.FC = () => {
             onNextPage={handleNextPage}
             onPreviousPage={handlePreviousPage}
             page={page}
-            onSearchChange={handleSearchChange}
-            onFilterChange={handleFilterChange}
+            onSearchChange={handleSearch}
+            onFilterChange={handleCategoryFilter}
           />
         )}
       </main>

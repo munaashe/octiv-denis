@@ -2,6 +2,8 @@ import { PlacesResponse } from "../utils/Types";
 
 const BASE_URL = `${process.env.REACT_APP_BASE_URL}/places`;
 
+console.log(BASE_URL)
+
 export const fetchPlaces = async (params: {
     sortBy?: string;
     sortDirection?: string;
