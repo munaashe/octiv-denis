@@ -1,8 +1,7 @@
+import axios from 'axios';
 import { PlacesResponse } from "../utils/Types";
 
 const BASE_URL = `${process.env.REACT_APP_BASE_URL}/places`;
-
-console.log(BASE_URL)
 
 export const fetchPlaces = async (params: {
     sortBy?: string;
@@ -29,19 +28,46 @@ export const fetchPlaces = async (params: {
         }
     });
 
-    const response = await fetch(`${BASE_URL}?${queryParams.toString()}`);
-
-    if (!response.ok) {
+    try {
+        const response = await axios.get(`${BASE_URL}?${queryParams.toString()}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching places:', error);
         throw new Error('Error fetching places');
     }
+};
 
-    return response.json() as Promise<PlacesResponse>;
+const extractCategories = (places: PlacesResponse): string[] => {
+    const categories = new Set<string>();
+    places.data.forEach(place => {
+        if (place.category) {
+            categories.add(place.category);
+        }
+    });
+    return Array.from(categories);
+};
+
+export const fetchCategories = async (): Promise<string[]> => {
+    const params = {
+        limit: 100
+    };
+
+    try {
+        const response = await axios.get(`${BASE_URL}`, { params });
+        const places = response.data;
+        return extractCategories(places);
+    } catch (error) {
+        console.error('Error fetching categories:', error);
+        throw new Error('Error fetching categories');
+    }
 };
 
 export const fetchPlaceById = async (id: string) => {
-    const response = await fetch(`${BASE_URL}/${id}`);
-    if (!response.ok) {
+    try {
+        const response = await axios.get(`${BASE_URL}/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching place:', error);
         throw new Error('Error fetching place');
     }
-    return response.json();
 };

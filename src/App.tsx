@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import Header from './components/header';
 import MapView from './containers/map-view';
 import TableView from './containers/table-view';
-import { fetchPlaces } from './api/fetchPlaces';
+import { fetchCategories, fetchPlaces } from './api/fetchPlaces';
 import { PlacesResponse } from './utils/Types';
 
 const App: React.FC = () => {
@@ -22,9 +22,16 @@ const App: React.FC = () => {
       search,
       filterCategory,
       page,
-      limit: activeTab === 'table' ? 10 : 100, 
+      limit: activeTab === 'table' ? 10 : 100,
     }),
   });
+
+  const { data: categories, isLoading: categoriesLoading, isError: categoriesError } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories,
+  });
+
+  console.log(categories)
 
   useEffect(() => {
     refetch();
@@ -52,7 +59,7 @@ const App: React.FC = () => {
       setPage((prevPage) => prevPage - 1);
     }
   };
-
+  console.log(filterCategory)
   return (
     <div>
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -60,12 +67,16 @@ const App: React.FC = () => {
         {activeTab === 'map' ? (
           <MapView
             data={data?.data ?? []}
+            categories={categories!}
+            selectedCategory={filterCategory}
             onSearch={handleSearch}
             onCategoryFilter={handleCategoryFilter}
           />
         ) : (
           <TableView
             data={data?.data ?? []}
+            categories={categories!}
+            selectedCategory={filterCategory}
             onSortChange={handleSortChange}
             onNextPage={handleNextPage}
             onPreviousPage={handlePreviousPage}

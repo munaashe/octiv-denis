@@ -11,6 +11,7 @@ export interface Place {
     location: string;
     description: string;
     coordinates: Coordinates;
+    address: string;
 }
 
 export type PlacesResponse = {
