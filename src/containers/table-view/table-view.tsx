@@ -1,8 +1,60 @@
 import React from 'react';
+import styled from 'styled-components';
 import { Place } from '../../utils/Types';
+import FilterDropdown from '../../components/filter-dropdown';
+import SearchBar from '../../components/searchbar';
 
+// Styled Components
+const Table = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid #ccc;
+`;
+
+const TableHead = styled.th`
+    border: 1px solid #ccc;
+    padding: 12px;
+    text-align: left;
+    cursor: pointer;
+    background-color: #f9f9f9;
+`;
+
+const TableRow = styled.tr`
+    &:nth-child(even) {
+        background-color: #f2f2f2;
+    }
+`;
+
+const TableData = styled.td`
+    border: 1px solid #ccc;
+    padding: 12px;
+`;
+
+const Pagination = styled.div`
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    margin-top: 20px;
+`;
+
+const PaginationButton = styled.button`
+    background-color: #f0f0f0;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:disabled {
+        background-color: #e0e0e0;
+        cursor: not-allowed;
+    }
+`;
+
+// TableView Component
 interface TableViewProps {
     data: Place[];
+    categories: string[];
+    selectedCategory: string;
     onSortChange: (column: string) => void;
     onNextPage: () => void;
     onPreviousPage: () => void;
@@ -13,6 +65,8 @@ interface TableViewProps {
 
 const TableView: React.FC<TableViewProps> = ({
     data,
+    categories,
+    selectedCategory,
     onSortChange,
     onNextPage,
     onPreviousPage,
@@ -23,45 +77,42 @@ const TableView: React.FC<TableViewProps> = ({
     return (
         <div>
             <div className="flex mb-4">
-                <input
-                    type="text"
-                    placeholder="Search places..."
-                    className="border p-2 mr-2"
-                    onChange={(e) => onSearchChange(e.target.value)}
+                <SearchBar onSearchChange={onSearchChange} />
+                <FilterDropdown
+                    categories={categories}
+                    selectedCategory={selectedCategory}
+                    onSelectCategory={onFilterChange}
                 />
-                <select
-                    className="border p-2"
-                    onChange={(e) => onFilterChange(e.target.value)}
-                >
-                    <option value="">All Categories</option>
-                    <option value="category1">Category 1</option>
-                    <option value="category2">Category 2</option>
-                </select>
             </div>
 
-            <table className="table-auto w-full border-collapse border border-gray-200">
+            <Table>
                 <thead>
                     <tr>
-                        <th onClick={() => onSortChange('name')} className="border p-2 cursor-pointer">Name</th>
-                        <th onClick={() => onSortChange('category')} className="border p-2 cursor-pointer">Category</th>
-                        <th onClick={() => onSortChange('location')} className="border p-2 cursor-pointer">Location</th>
+                        <TableHead onClick={() => onSortChange('name')}>Name</TableHead>
+                        <TableHead onClick={() => onSortChange('category')}>Category</TableHead>
+                        <TableHead onClick={() => onSortChange('description')}>Description</TableHead>
+                        <TableHead onClick={() => onSortChange('address')}>Address</TableHead>
                     </tr>
                 </thead>
                 <tbody>
                     {data.map((place) => (
-                        <tr key={place.id}>
-                            <td className="border p-2">{place.name}</td>
-                            <td className="border p-2">{place.category}</td>
-                            <td className="border p-2">{place.coordinates.lat}, {place.coordinates.lon}</td>
-                        </tr>
+                        <TableRow key={place.id}>
+                            <TableData>{place.name}</TableData>
+                            <TableData>{place.category}</TableData>
+                            <TableData>{place.description}</TableData>
+                            <TableData>{place.address}</TableData>
+                        </TableRow>
                     ))}
                 </tbody>
-            </table>
+            </Table>
 
-            <div className="flex justify-between mt-4">
-                <button onClick={onPreviousPage} disabled={page === 1} className="bg-gray-200 p-2">Previous</button>
-                <button onClick={onNextPage} className="bg-gray-200 p-2">Next</button>
-            </div>
+            <Pagination>
+                <PaginationButton onClick={onPreviousPage} disabled={page === 1}>
+                    Previous
+                </PaginationButton>
+                <span>Page {page}</span>
+                <PaginationButton onClick={onNextPage}>Next</PaginationButton>
+            </Pagination>
         </div>
     );
 };

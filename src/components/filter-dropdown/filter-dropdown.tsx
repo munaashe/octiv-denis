@@ -1,11 +1,32 @@
-import React from 'react'
+import React from 'react';
+import styled from 'styled-components';
 
-const FilterDropdown = () => {
-    return (
-        <div>
-            filter dropdown
-        </div>
-    )
+interface FilterDropdownProps {
+    categories: string[];
+    selectedCategory: string;
+    onSelectCategory: (category: string) => void;
 }
 
-export default FilterDropdown
+const Dropdown = styled.select`
+  padding: 8px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  margin: 10px;
+  text-transform: capitalize;
+`;
+
+const FilterDropdown: React.FC<FilterDropdownProps> = ({ categories = [], selectedCategory, onSelectCategory }) => {
+    return (
+        <Dropdown value={selectedCategory} onChange={(e) => onSelectCategory(e.target.value)}>
+            <option value="">All Categories</option>
+            {categories.map((category, index) => (
+                <option key={index} value={category}>
+                    {category}
+                </option>
+            ))}
+        </Dropdown>
+    );
+};
+
+export default FilterDropdown;
