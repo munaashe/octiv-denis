@@ -64,6 +64,3 @@ Your application should now be running at [http://localhost:3000](http://localho
 
 If you want to contribute to this project, please fork the repository and create a pull request with your changes.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
