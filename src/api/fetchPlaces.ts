@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { PlacesResponse } from "../utils/Types";
 
-const BASE_URL = `https://api-octiv-test.vercel.app/api/places`;
+const BASE_URL = `${process.env.REACT_APP_BASE_URL}/places`;
 
 export const fetchPlaces = async (params: {
     sortBy?: string;

@@ -1,10 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import styled from 'styled-components';
 import Header from './components/header';
 import MapView from './containers/map-view';
 import TableView from './containers/table-view';
 import { fetchCategories, fetchPlaces } from './api/fetchPlaces';
 import { PlacesResponse } from './utils/Types';
+import { useTheme } from './context/theme-context';
+
+const Main = styled.main`
+  min-height: 100vh;
+  background-color: ${({ theme }) => theme.background};
+  color: ${({ theme }) => theme.color};
+  transition: background-color 0.3s ease, color 0.3s ease;
+`;
 
 const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'map' | 'table'>('map');
@@ -14,32 +23,33 @@ const App: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [filterCategory, setFilterCategory] = useState<string>('');
 
-  const { data, isLoading, isError, refetch } = useQuery<PlacesResponse>({
+  const { theme, toggleTheme } = useTheme();
+
+  const { data, isLoading: isPlacesLoading, isError, refetch } = useQuery<PlacesResponse>({
     queryKey: ['places', page, sortBy, sortDirection, search, filterCategory],
-    queryFn: () => fetchPlaces({
-      sortBy,
-      sortDirection,
-      search,
-      filterCategory,
-      page,
-      limit: activeTab === 'table' ? 10 : 100,
-    }),
+    queryFn: () =>
+      fetchPlaces({
+        sortBy,
+        sortDirection,
+        search,
+        filterCategory,
+        page,
+        limit: activeTab === 'table' ? 10 : 100,
+      }),
   });
 
-  const { data: categories, isLoading: categoriesLoading, isError: categoriesError } = useQuery({
+  const { data: categories } = useQuery({
     queryKey: ['categories'],
     queryFn: fetchCategories,
   });
 
-  console.log(categories)
-
   useEffect(() => {
     refetch();
-  }, [page, sortBy, sortDirection, search, filterCategory, refetch]);
+  }, [page, sortBy, sortDirection, search, filterCategory, activeTab, refetch]);
 
   const handleSortChange = (column: string) => {
     setSortBy(column);
-    setSortDirection((prevDirection) => prevDirection === 'asc' ? 'desc' : 'asc');
+    setSortDirection((prevDirection) => (prevDirection === 'asc' ? 'desc' : 'asc'));
   };
 
   const handleSearch = (search: string) => {
@@ -59,34 +69,34 @@ const App: React.FC = () => {
       setPage((prevPage) => prevPage - 1);
     }
   };
-  console.log(filterCategory)
+
   return (
-    <div>
+    <Main>
       <Header activeTab={activeTab} setActiveTab={setActiveTab} />
-      <main className="p-4">
-        {activeTab === 'map' ? (
-          <MapView
-            data={data?.data ?? []}
-            categories={categories!}
-            selectedCategory={filterCategory}
-            onSearch={handleSearch}
-            onCategoryFilter={handleCategoryFilter}
-          />
-        ) : (
-          <TableView
-            data={data?.data ?? []}
-            categories={categories!}
-            selectedCategory={filterCategory}
-            onSortChange={handleSortChange}
-            onNextPage={handleNextPage}
-            onPreviousPage={handlePreviousPage}
-            page={page}
-            onSearchChange={handleSearch}
-            onFilterChange={handleCategoryFilter}
-          />
-        )}
-      </main>
-    </div>
+      {activeTab === 'map' &&
+        <MapView
+          data={data?.data ?? []}
+          categories={categories!}
+          selectedCategory={filterCategory}
+          onSearch={handleSearch}
+          onCategoryFilter={handleCategoryFilter}
+        />
+      }
+      {activeTab === 'table' &&
+        <TableView
+          data={data?.data ?? []}
+          categories={categories!}
+          selectedCategory={filterCategory}
+          isLoading={isPlacesLoading}
+          onSortChange={handleSortChange}
+          onNextPage={handleNextPage}
+          onPreviousPage={handlePreviousPage}
+          page={page}
+          onSearchChange={handleSearch}
+          onFilterChange={handleCategoryFilter}
+        />
+      }
+    </Main>
   );
 };
 

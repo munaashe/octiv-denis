@@ -1,35 +1,73 @@
 import React from 'react';
 import { useTheme } from '../../context/theme-context';
+import Button from '../button';
+import styled from 'styled-components';
 
 interface HeaderProps {
     activeTab: 'map' | 'table';
     setActiveTab: React.Dispatch<React.SetStateAction<'map' | 'table'>>;
 }
+
+
+const HeaderContainer = styled.header<{ theme: string }>`
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: ${({ theme }) => (theme === 'dark' ? '#333' : '#f4f4f4')};
+`;
+
+const TabButton = styled(Button) <{ active: boolean; theme: string }>`
+    background: transparent;
+    color: ${({ active, theme }) => (active ? (theme === 'dark' ? '#fff' : '#000') : (theme === 'dark' ? '#aaa' : '#555'))};
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    transition: color 0.3s ease;
+
+    &:hover {
+        color: ${({ theme }) => (theme === 'dark' ? '#fff' : '#000')};
+    }
+`;
+
+const ThemeToggleButton = styled.button<{ theme: string }>`
+    background: none;
+    border: none;
+    cursor: pointer;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ${({ theme }) => (theme === 'dark' ? '#fff' : '#000')};
+    transition: color 0.3s ease;
+`;
+
 const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
     const { theme, toggleTheme } = useTheme();
+
     return (
-        <header className="p-4 bg-gray-200 dark:bg-gray-900 flex justify-between items-center w-full">
-            <div className="flex items-center space-x-4">
-                <button
+        <HeaderContainer theme={theme}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                <TabButton
                     onClick={() => setActiveTab('map')}
-                    className={`py-2 px-4 font-bold ${activeTab === 'map'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                        } rounded`}
+                    active={activeTab === 'map'}
+                    theme={theme}
+                    variant='text'
                 >
                     Map View
-                </button>
-                <button
+                </TabButton>
+                <TabButton
                     onClick={() => setActiveTab('table')}
-                    className={`py-2 px-4 font-bold ${activeTab === 'table'
-                            ? 'bg-blue-500 text-white'
-                            : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300'
-                        } rounded`}
+                    active={activeTab === 'table'}
+                    theme={theme}
+                    variant='text'
                 >
                     Table View
-                </button>
+                </TabButton>
             </div>
-            <button onClick={toggleTheme} className="focus:outline-none w-8 h-8">
+            <ThemeToggleButton onClick={toggleTheme} theme={theme}>
                 {theme === 'dark' ? (
                     <svg
                         viewBox="0 0 24 24"
@@ -75,8 +113,8 @@ const Header: React.FC<HeaderProps> = ({ activeTab, setActiveTab }) => {
                         </g>
                     </svg>
                 )}
-            </button>
-        </header>
+            </ThemeToggleButton>
+        </HeaderContainer>
     );
 };
 

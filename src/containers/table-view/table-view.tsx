@@ -1,56 +1,11 @@
 import React from 'react';
-import styled from 'styled-components';
+import styled, { css, keyframes } from 'styled-components';
 import { Place } from '../../utils/Types';
 import FilterDropdown from '../../components/filter-dropdown';
 import SearchBar from '../../components/searchbar';
+import Button from '../../components/button';
+import { useTheme } from '../../context/theme-context';
 
-// Styled Components
-const Table = styled.table`
-    width: 100%;
-    border-collapse: collapse;
-    border: 1px solid #ccc;
-`;
-
-const TableHead = styled.th`
-    border: 1px solid #ccc;
-    padding: 12px;
-    text-align: left;
-    cursor: pointer;
-    background-color: #f9f9f9;
-`;
-
-const TableRow = styled.tr`
-    &:nth-child(even) {
-        background-color: #f2f2f2;
-    }
-`;
-
-const TableData = styled.td`
-    border: 1px solid #ccc;
-    padding: 12px;
-`;
-
-const Pagination = styled.div`
-    display: flex;
-    justify-content: space-between;
-    padding: 10px 0;
-    margin-top: 20px;
-`;
-
-const PaginationButton = styled.button`
-    background-color: #f0f0f0;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-
-    &:disabled {
-        background-color: #e0e0e0;
-        cursor: not-allowed;
-    }
-`;
-
-// TableView Component
 interface TableViewProps {
     data: Place[];
     categories: string[];
@@ -61,7 +16,89 @@ interface TableViewProps {
     page: number;
     onSearchChange: (search: string) => void;
     onFilterChange: (filter: string) => void;
+    isLoading: boolean; // Added prop for loading state
 }
+
+const defaultTheme = {
+    tableBorder: '#ccc',
+    tableHeadBackground: '#f5f5f5',
+    tableRowEvenBackground: '#fafafa',
+    color: '#333',
+    skeleton: '#e0e0e0',
+    paginationBackground: '#ffffff', // Add default value for paginationBackground
+};
+
+const Table = styled.table`
+    width: 100%;
+    border-collapse: collapse;
+    border: 1px solid ${({ theme }) => theme.tableBorder || defaultTheme.tableBorder};
+`;
+
+const TableHead = styled.th`
+    border: 1px solid ${({ theme }) => theme.tableBorder || defaultTheme.tableBorder};
+    padding: 12px;
+    text-align: left;
+    cursor: pointer;
+    background-color: ${({ theme }) => theme.tableHeadBackground || defaultTheme.tableHeadBackground};
+`;
+
+const TableRow = styled.tr`
+  &:nth-child(even) {
+    background-color: ${({ theme }) => theme.tableRowEvenBackground || defaultTheme.tableRowEvenBackground};
+  }
+`;
+
+const TableData = styled.td`
+    border: 1px solid ${({ theme }) => theme.tableBorder || defaultTheme.tableBorder};
+    padding: 12px;
+    color: ${({ theme }) => theme.color || defaultTheme.color};
+`;
+
+const pulse = keyframes`
+    0% {
+        background-position: -200% 0;
+    }
+    100% {
+        background-position: 200% 0;
+    }
+`;
+
+const SkeletonRow = styled.tr`
+    background: ${({ theme }) => theme.skeleton || defaultTheme.skeleton};
+    background: linear-gradient(90deg, #e0e0e0 25%, #f4f4f4 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    animation: ${pulse} 1.5s infinite ease-in-out;
+    height: 50px;
+`;
+
+const SkeletonCell = styled.td`
+    height: 24px;
+    border: 1px solid ${({ theme }) => theme.tableBorder || defaultTheme.tableBorder};
+    background: ${({ theme }) => theme.skeleton || defaultTheme.skeleton};
+    background: linear-gradient(90deg, #e0e0e0 25%, #f4f4f4 50%, #e0e0e0 75%);
+    background-size: 200% 100%;
+    border-radius: 4px;
+    margin: 4px 0;
+    animation: ${pulse} 1.5s infinite ease-in-out;
+`;
+
+const Pagination = styled.div`
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    margin-top: 20px;
+    color: ${({ theme }) => theme.color || defaultTheme.color};
+    background-color: ${({ theme }) => theme.paginationBackground || defaultTheme.paginationBackground}; // Ensure this is defined
+`;
+
+const ControlsContainer = styled.div`
+    display: flex;
+    justify-content: space-between;
+    margin: 0 16px;
+    align-items: center;
+    gap: 16px; 
+    margin-bottom: 16px; 
+`;
 
 const TableView: React.FC<TableViewProps> = ({
     data,
@@ -72,18 +109,21 @@ const TableView: React.FC<TableViewProps> = ({
     onPreviousPage,
     page,
     onSearchChange,
-    onFilterChange
+    onFilterChange,
+    isLoading
 }) => {
+    const { theme } = useTheme();
+
     return (
         <div>
-            <div className="flex mb-4">
+            <ControlsContainer>
                 <SearchBar onSearchChange={onSearchChange} />
                 <FilterDropdown
                     categories={categories}
                     selectedCategory={selectedCategory}
                     onSelectCategory={onFilterChange}
                 />
-            </div>
+            </ControlsContainer>
 
             <Table>
                 <thead>
@@ -95,23 +135,35 @@ const TableView: React.FC<TableViewProps> = ({
                     </tr>
                 </thead>
                 <tbody>
-                    {data.map((place) => (
-                        <TableRow key={place.id}>
-                            <TableData>{place.name}</TableData>
-                            <TableData>{place.category}</TableData>
-                            <TableData>{place.description}</TableData>
-                            <TableData>{place.address}</TableData>
-                        </TableRow>
-                    ))}
+                    {isLoading
+                        ? Array.from({ length: 10 }).map((_, index) => (
+                            <SkeletonRow key={index}>
+                                <SkeletonCell />
+                                <SkeletonCell />
+                                <SkeletonCell />
+                                <SkeletonCell />
+                            </SkeletonRow>
+                        ))
+                        : data.map((place) => (
+                            <TableRow key={place.id}>
+                                <TableData>{place.name}</TableData>
+                                <TableData>{place.category}</TableData>
+                                <TableData>{place.description}</TableData>
+                                <TableData>{place.address}</TableData>
+                            </TableRow>
+                        ))
+                    }
                 </tbody>
             </Table>
 
             <Pagination>
-                <PaginationButton onClick={onPreviousPage} disabled={page === 1}>
+                <Button variant='solid' onClick={onPreviousPage} active={page !== 1}>
                     Previous
-                </PaginationButton>
+                </Button>
                 <span>Page {page}</span>
-                <PaginationButton onClick={onNextPage}>Next</PaginationButton>
+                <Button onClick={onNextPage} variant='solid'>
+                    Next
+                </Button>
             </Pagination>
         </div>
     );
