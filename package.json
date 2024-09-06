@@ -13,6 +13,7 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.7.7",
     "leaflet": "^1.9.4",
     "postcss": "^8.4.45",
     "react": "^18.3.1",
