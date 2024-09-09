@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { css, keyframes } from 'styled-components';
 import { Place } from '../../utils/Types';
 import FilterDropdown from '../../components/filter-dropdown';
@@ -16,7 +16,7 @@ interface TableViewProps {
     page: number;
     onSearchChange: (search: string) => void;
     onFilterChange: (filter: string) => void;
-    isLoading: boolean; // Added prop for loading state
+    isLoading: boolean;
 }
 
 const defaultTheme = {
@@ -113,6 +113,13 @@ const TableView: React.FC<TableViewProps> = ({
     isLoading
 }) => {
     const { theme } = useTheme();
+    const [totalPages, setTotalPages] = useState<number>(1)
+
+    useEffect(() => {
+        if (data) {
+            setTotalPages(data.length);
+        }
+    }, [data])
 
     return (
         <div>
@@ -161,7 +168,7 @@ const TableView: React.FC<TableViewProps> = ({
                     Previous
                 </Button>
                 <span>Page {page}</span>
-                <Button onClick={onNextPage} variant='solid'>
+                <Button onClick={onNextPage} variant='solid' disabled={page >= totalPages} >
                     Next
                 </Button>
             </Pagination>
