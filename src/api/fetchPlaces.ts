@@ -17,7 +17,7 @@ export const fetchPlaces = async (params: {
         sortBy: params.sortBy,
         sortDirection: params.sortDirection,
         search: params.search,
-        'filter[category]': params.filterCategory,
+        category: params.filterCategory,
         page: params.page,
         limit: params.limit,
     };
